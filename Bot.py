@@ -1,9 +1,11 @@
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
-
+import torch
 
 model_name = 'sberbank-ai/rugpt3large_based_on_gpt2'
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
+model.to(device)
 
 prompt = '''Пользователь: Привет. Как дела?
 Бот: Здравствуйте! Все хорошо
@@ -58,6 +60,7 @@ def generate_output(context):
 
     prompt_text = context + '\n'
     encoded_prompt = tokenizer.encode(prompt_text, add_special_tokens=True, return_tensors='pt')
+    encoded_prompt = encoded_prompt.to(device)
     out = model.generate(
         input_ids=encoded_prompt,
         max_length=150,
